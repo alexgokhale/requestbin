@@ -15,3 +15,8 @@ workers_dev = true
 kv_namespaces = [
     { binding = "BINS", id = "a7ef2bc7397244d094f68c58aed88aeb", preview_id = "a7ef2bc7397244d094f68c58aed88aeb" }
 ]
+
+[env.prod]
+kv_namespaces = [
+    { binding = "BINS", id = "ac7af24308fe4ba39dda19739c389c24" }
+]
