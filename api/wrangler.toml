@@ -17,6 +17,8 @@ kv_namespaces = [
 ]
 
 [env.prod]
+zone_id = "f8ff397426356e328b48ef70b19732f4"
+route = "requestbin.xela.tech/*"
 kv_namespaces = [
     { binding = "BINS", id = "ac7af24308fe4ba39dda19739c389c24" }
 ]
