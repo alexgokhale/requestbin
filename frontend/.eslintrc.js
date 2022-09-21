@@ -451,11 +451,17 @@ module.exports = {
 	},
 	overrides: [
 		{
-			files: ["*.ts", "*.tsx"],
+			files: ["./**/*.{ts,tsx}"],
 			extends: [
 				"plugin:@typescript-eslint/recommended",
 				"plugin:@typescript-eslint/recommended-requiring-type-checking"
 			],
+			rules: {
+				"@typescript-eslint/no-misused-promises": ["error", { checksVoidReturn: false }],
+				"@typescript-eslint/no-floating-promises": ["off"],
+				"@typescript-eslint/restrict-template-expressions": ["error", { allowNullish: true }],
+				"@typescript-eslint/restrict-plus-operands": ["error", { allowAny: true }]
+			},
 			parserOptions: {
 				project: ["./tsconfig.json"]
 			}

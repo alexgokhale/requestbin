@@ -1,17 +1,63 @@
-import React from "react";
-import { Header } from "../components";
+import React, { useState } from "react";
+import { Header, Button } from "../components";
+import { ExclamationCircleIcon } from "@heroicons/react/solid";
+import { useNavigate } from "react-router-dom";
+import { RequestBinResponse, ErrorResponse } from "../types";
 
 const Landing = () => {
+	const navigate = useNavigate();
+	const [error, setError] = useState<string | null>(null);
+	const [loading, setLoading] = useState(false);
+
+	const handleCreateBin = async () => {
+		setError(null);
+		setLoading(true);
+
+		try {
+			const response = await fetch(`${process.env.REACT_APP_BASE_API_URL}/create`, {
+				method: "POST"
+			});
+
+			if (response.ok) {
+				const body = await response.json() as RequestBinResponse;
+				navigate(`/${body.bin.id}`);
+
+				return;
+			}
+
+			const body = await response.json() as ErrorResponse;
+
+			setError(body.message);
+		} catch (_) {
+			setError("An unknown error occurred");
+		}
+
+		setLoading(false);
+	};
+
 	return (
 		<div className="m-8 select-none">
 			<Header row={<>
-				<button className="shadow-lg tracking-tight font-mono rounded-md bg-cyan-600 text-white font-semibold text-lg px-4 py-1">
-					Create a Bin
-				</button>
+				<Button
+					loading={loading}
+					className={
+						"flex items-center justify-center disabled:cursor-not-allowed shadow-lg tracking-tight " +
+						"rounded-md bg-cyan-600 text-white font-semibold text-lg px-4 py-1"}
+					onClick={handleCreateBin}
+					text="Create a Bin"
+					textClassName="font-mono"
+				/>
+
+				{error && (
+					<p className="mt-3 font-bold font-mono text-red-600 text-sm flex gap-2 items-center">
+						<ExclamationCircleIcon className="w-5 h-5 inline-block" />
+						{error}
+					</p>
+				)}
 			</>} />
 
 			<div className="mt-16">
-				<h5 className="font-mono text-red-500 mb-1">
+				<h5 className="font-mono font-bold text-pink-600 mb-1">
 					# What can I do with this?
 				</h5>
 				<p className="ml-2 font-mono text-neutral-400 font-bold text-sm">
@@ -24,7 +70,7 @@ const Landing = () => {
 			</div>
 
 			<div className="mt-8">
-				<h5 className="font-mono text-red-500 mb-1">
+				<h5 className="font-mono font-bold text-pink-600 mb-1">
 					# Is it open-source?
 				</h5>
 				<p className="ml-2 font-mono text-neutral-400 font-bold text-sm">
@@ -40,7 +86,7 @@ const Landing = () => {
 			</div>
 
 			<div className="mt-8">
-				<h5 className="font-mono text-red-500 mb-1">
+				<h5 className="font-mono font-bold text-pink-600 mb-1">
 					# Who made this <span className="font-mono font-extrabold">*amazing*</span> tool?
 				</h5>
 				<p className="ml-2 font-mono text-neutral-400 font-bold text-sm">
