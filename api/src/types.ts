@@ -7,7 +7,7 @@ export interface StoredRequest {
 	ip: string
 	method: string,
 	url: string,
-	timestamp: string,
+	timestamp: number,
 	headers: Headers,
 	body?: string
 }

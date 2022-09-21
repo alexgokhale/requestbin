@@ -72,7 +72,7 @@ router.all("/-/:id", async (request: Request & IttyRequest) => {
 		ip,
 		method,
 		url,
-		timestamp: Date.now().toString(),
+		timestamp: Date.now(),
 		headers: headersObject
 	};
 
