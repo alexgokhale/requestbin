@@ -112,6 +112,41 @@ router.get("/:id/:requestId", async ({ params }) => {
 	return json({ success: true, request });
 });
 
+// Get request body from bin (for image requests)
+router.get("/:id/:requestId/body", async ({ params }) => {
+	const { id, requestId } = params;
+	const bin = await BINS.get<RequestBin>(id, { type: "json" });
+
+	if (!bin) {
+		return json({
+			success: false,
+			message: "A request bin could not be found with the ID provided"
+		}, { status: 404 });
+	}
+
+	const request = bin.requests[requestId];
+
+	if (!request) {
+		return json({
+			success: false,
+			message: "A request could not be found in this bin with the ID provided"
+		}, { status: 404 });
+	}
+
+	if (!request.headers["content-type"].startsWith("image")) {
+		return json({
+			success: false,
+			message: "Can't fetch body for this request type"
+		}, { status: 400 });
+	}
+
+	return new Response(request.body, {
+		headers: {
+			"content-type": request.headers["content-type"]
+		}
+	});
+});
+
 // Delete all requests from a bin
 router.delete("/:id/all", async ({ params }) => {
 	const { id } = params;
