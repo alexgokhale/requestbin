@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { Header, Spinner, Request } from "../components";
+import { Header, Spinner, Request, Button } from "../components";
 import { Error } from "../pages";
 import { RequestBin, RequestBinResponse } from "../types";
 import { QuestionMarkCircleIcon } from "@heroicons/react/solid";
@@ -9,6 +9,7 @@ const Bin = () => {
 	const { id } = useParams();
 
 	const [loading, setLoading] = useState(false);
+	const [refresh, setRefresh] = useState(0);
 	const [error, setError] = useState<number | null>(null);
 	const [bin, setBin] = useState<RequestBin | null>(null);
 
@@ -31,7 +32,7 @@ const Bin = () => {
 				setLoading(false);
 			}
 		})();
-	}, [id]);
+	}, [id, refresh]);
 
 	if (error) {
 		if (error === 404) {
@@ -47,12 +48,24 @@ const Bin = () => {
 
 	return (
 		<div className="m-8">
-			<Header row={loading ? <Spinner /> : <p className="font-mono text-pink-500 font-bold select-none">
-				Your RequestBin endpoint:{" "}
-				<span className="font-mono select-all rounded-lg p-1 px-2 bg-black/25 text-neutral-300">
-					{process.env.REACT_APP_BASE_API_URL}/-/{id}
-				</span>
-			</p>} />
+			<Header row={loading ? <Spinner /> : (
+				<div className="flex items-center justify-between">
+					<p className="font-mono text-pink-500 font-bold select-none">
+						Your RequestBin endpoint:{" "}
+						<span className="font-mono select-all rounded-lg p-1 px-2 bg-black/25 text-neutral-300">
+							{process.env.REACT_APP_BASE_API_URL}/-/{id}
+						</span>
+					</p>
+					<Button
+						className={
+							"flex items-center justify-center disabled:cursor-not-allowed shadow-lg tracking-tight " +
+							"rounded-md bg-cyan-600 hover:bg-cyan-700 text-white font-semibold text-lg px-4 py-1"}
+						text="Refresh"
+						textClassName="font-mono"
+						onClick={() => setRefresh(Math.random())}
+					/>
+				</div>
+			)} />
 			{!loading && bin && (
 				Object.keys(bin.requests).length === 0 ? (
 					<div className="flex mt-8 gap-2">
@@ -64,7 +77,7 @@ const Bin = () => {
 						{Object
 							.keys(bin.requests)
 							.sort((a, b) => bin.requests[a].timestamp > bin.requests[b].timestamp ? -1 : 1)
-							.map(requestId => <Request key={requestId} request={bin.requests[requestId]} />)}
+							.map(requestId => <Request key={requestId} request={bin.requests[requestId]} bin={bin.id} />)}
 					</div>
 				)
 			)}

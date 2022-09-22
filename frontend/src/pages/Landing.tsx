@@ -42,7 +42,7 @@ const Landing = () => {
 					loading={loading}
 					className={
 						"flex items-center justify-center disabled:cursor-not-allowed shadow-lg tracking-tight " +
-						"rounded-md bg-cyan-600 text-white font-semibold text-lg px-4 py-1"}
+						"rounded-md bg-cyan-600 hover:bg-cyan-700 text-white font-semibold text-lg px-4 py-1"}
 					onClick={handleCreateBin}
 					text="Create a Bin"
 					textClassName="font-mono"

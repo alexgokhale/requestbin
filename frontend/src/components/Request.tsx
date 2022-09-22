@@ -2,28 +2,41 @@ import React from "react";
 import { StoredRequest } from "../types";
 import dayjs from "dayjs";
 import RelativeTime from "dayjs/plugin/relativeTime";
+import { RequestBody } from "./index";
 
 interface RequestProps {
-	request: StoredRequest
+	request: StoredRequest,
+	bin: string
 }
 
 dayjs.extend(RelativeTime);
 
-const Request = ({ request }: RequestProps) => {
+const Request = ({ request, bin }: RequestProps) => {
 	const url = new URL(request.url);
+
+	const methodColours: {[key: string]: string} = {
+		GET: "bg-purple-500",
+		POST: "bg-blue-500",
+		fallback: "bg-yellow-600"
+	};
 
 	return (
 		<div className="p-3 rounded-lg bg-black/10 border-2 border-white/25 w-full flex gap-y-4 flex-col">
 			<div className="flex gap-2 items-center justify-between">
 				<div className="flex gap-2 items-center">
-					<span className="px-2 font-bold rounded-md uppercase text-white bg-purple-500">{request.method}</span>
-					<span className="font-bold font-mono text-white">{request.ip}</span>
+					<span className={`px-2 font-bold rounded-md uppercase text-white ${methodColours[request.method] ?? methodColours.fallback}`}>
+						{request.method}
+					</span>
+					<span className="font-bold font-mono text-white">
+						{request.ip}
+					</span>
 				</div>
 				<p className="text-white">
 					<span className="font-bold">{dayjs(request.timestamp).format("DD MMM YYYY, HH:mm:ss.SSS")}</span>{" "}
 					({dayjs(request.timestamp).fromNow()})
 				</p>
 			</div>
+			{request.body && <RequestBody body={request.body} type={request.headers["content-type"]} bin={bin} request={request.id} />}
 			<div>
 				<h4 className="text-white text-xl font-bold">URL</h4>
 				<p className="text-white text-sm font-bold">Host: <span className="text-pink-500 font-mono">{url.host}</span></p>
