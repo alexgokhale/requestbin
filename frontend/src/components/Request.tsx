@@ -16,6 +16,7 @@ const Request = ({ request }: RequestProps) => {
 	const methodColours: {[key: string]: string} = {
 		GET: "bg-purple-500",
 		POST: "bg-blue-500",
+		DELETE: "bg-red-500",
 		fallback: "bg-yellow-600"
 	};
 
