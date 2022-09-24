@@ -5,13 +5,12 @@ import RelativeTime from "dayjs/plugin/relativeTime";
 import { RequestBody } from "./index";
 
 interface RequestProps {
-	request: StoredRequest,
-	bin: string
+	request: StoredRequest
 }
 
 dayjs.extend(RelativeTime);
 
-const Request = ({ request, bin }: RequestProps) => {
+const Request = ({ request }: RequestProps) => {
 	const url = new URL(request.url);
 
 	const methodColours: {[key: string]: string} = {
@@ -36,7 +35,7 @@ const Request = ({ request, bin }: RequestProps) => {
 					({dayjs(request.timestamp).fromNow()})
 				</p>
 			</div>
-			{request.body && <RequestBody body={request.body} type={request.headers["content-type"]} bin={bin} request={request.id} />}
+			{request.body && <RequestBody body={request.body} type={request.headers["content-type"]} />}
 			<div>
 				<h4 className="text-white text-xl font-bold">URL</h4>
 				<p className="text-white text-sm font-bold">Host: <span className="text-pink-500 font-mono">{url.host}</span></p>

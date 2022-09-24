@@ -77,7 +77,7 @@ const Bin = () => {
 						{Object
 							.keys(bin.requests)
 							.sort((a, b) => bin.requests[a].timestamp > bin.requests[b].timestamp ? -1 : 1)
-							.map(requestId => <Request key={requestId} request={bin.requests[requestId]} bin={bin.id} />)}
+							.map(requestId => <Request key={requestId} request={bin.requests[requestId]} />)}
 					</div>
 				)
 			)}
