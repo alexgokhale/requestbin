@@ -76,10 +76,10 @@ router.all("/-/:id", async (request: Request & IttyRequest) => {
 		headers: headersObject
 	};
 
-	const body = await request.text();
+	const body = await request.arrayBuffer();
 
 	if (body)
-		r.body = body;
+		r.body = new Uint8Array(body);
 
 	bin.requests[requestId] = r;
 
@@ -140,7 +140,7 @@ router.get("/:id/:requestId/body", async ({ params }) => {
 		}, { status: 400 });
 	}
 
-	return new Response(request.body, {
+	return new Response(request.body.buffer, {
 		headers: {
 			"content-type": request.headers["content-type"]
 		}

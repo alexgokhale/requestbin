@@ -9,7 +9,7 @@ export interface StoredRequest {
 	url: string,
 	timestamp: number,
 	headers: Headers,
-	body?: string
+	body?: Uint8Array
 }
 
 export interface Requests {
