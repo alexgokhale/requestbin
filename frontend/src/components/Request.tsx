@@ -35,7 +35,7 @@ const Request = ({ request }: RequestProps) => {
 					({dayjs(request.timestamp).fromNow()})
 				</p>
 			</div>
-			{request.body && <RequestBody body={request.body} type={request.headers["content-type"]} />}
+			{request.body && request.body.length > 0 && <RequestBody body={request.body} type={request.headers["content-type"]} />}
 			<div>
 				<h4 className="text-white text-xl font-bold">URL</h4>
 				<p className="text-white text-sm font-bold">Host: <span className="text-pink-500 font-mono">{url.host}</span></p>
