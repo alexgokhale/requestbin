@@ -1,6 +1,6 @@
-import { Router, json, IRequest } from "itty-router";
+import { Router, IRequest } from "itty-router";
 import { StoredRequest, RequestBin, ReturnedRequest } from "./types";
-import { mapRequest, randomString } from "./utils";
+import { mapRequest, randomString, json } from "./utils";
 
 export interface Env {
 	DB: D1Database;

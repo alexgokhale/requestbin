@@ -27,3 +27,19 @@ export const mapRequest = (storedRequest: StoredRequest): ReturnedRequest => {
 		body: storedRequest.body
 	};
 };
+
+export const json = (body: object, options: ResponseInit = {}): Response => {
+	const { headers = {}, ...rest } = options;
+
+	return new Response(JSON.stringify(body), {
+		headers: {
+			"Content-Type": "application/json",
+			"Access-Control-Allow-Origin": "*",
+			"Access-Control-Allow-Headers": "*",
+			"Access-Control-Allow-Methods": "GET,POST,PUT,PATCH,HEAD,TRACE,CONNECT,OPTIONS",
+			...headers
+		},
+		...rest
+	});
+};
+
