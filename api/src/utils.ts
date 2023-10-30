@@ -1,3 +1,5 @@
+import { Headers, ReturnedRequest, StoredRequest } from "./types";
+
 const DEFAULT_CHARACTERS = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 export const randomString = (length: number, characters?: string): string => {
@@ -14,17 +16,14 @@ export const randomString = (length: number, characters?: string): string => {
 	return result;
 };
 
-export const json = (body: object, options: ResponseInit = {}): Response => {
-	const { headers = {}, ...rest } = options;
-
-	return new Response(JSON.stringify(body), {
-		headers: {
-			"Content-Type": "application/json",
-			"Access-Control-Allow-Origin": "*",
-			"Access-Control-Allow-Headers": "*",
-			"Access-Control-Allow-Methods": "GET,POST,PUT,PATCH,HEAD,TRACE,CONNECT,OPTIONS",
-			...headers
-		},
-		...rest
-	});
+export const mapRequest = (storedRequest: StoredRequest): ReturnedRequest => {
+	return {
+		id: storedRequest.id,
+		method: storedRequest.method,
+		ip: storedRequest.ip,
+		url: storedRequest.url,
+		timestamp: storedRequest.timestamp,
+		headers: JSON.parse(storedRequest.headers) as Headers,
+		body: storedRequest.body
+	};
 };

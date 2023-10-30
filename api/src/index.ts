@@ -1,21 +1,24 @@
-import { IHTTPMethods, Router, Request as IttyRequest } from "itty-router";
-import { randomString, json } from "./utils";
-import { RequestBin, StoredRequest } from "./types";
+import { Router, json, IRequest } from "itty-router";
+import { StoredRequest, RequestBin, ReturnedRequest } from "./types";
+import { mapRequest, randomString } from "./utils";
 
-// TODO: Expiring Bins?
+export interface Env {
+	DB: D1Database;
+}
 
-const router = Router<Request, IHTTPMethods>();
+const router = Router<IRequest, [env: Env, ctx: ExecutionContext]>();
 
-// Create a request bin
-router.post("/create", async () => {
+router.post("/create", async (req, env: Env) => {
 	const id = randomString(10);
 
-	const data: RequestBin = {
-		id: id,
-		requests: {}
-	};
+	const result = await env.DB.prepare("INSERT INTO bins (id) values (?)").bind(id).run();
 
-	await BINS.put(id, JSON.stringify(data));
+	if (!result.success) {
+		return json({
+			success: false,
+			message: "An unknown error occurred"
+		}, { status: 500 });
+	}
 
 	return json({
 		success: true,
@@ -24,39 +27,20 @@ router.post("/create", async () => {
 		}
 	});
 });
-
-// Get a request bin (and it's requests)
-router.get("/:id", async ({ params }) => {
-	const { id } = params;
-	const bin = await BINS.get<RequestBin>(id, { type: "json" });
-
-	if (!bin) {
-		return json({
-			success: false,
-			message: "A request bin could not be found with the ID provided"
-		}, { status: 404 });
-	}
-
-	return json({
-		success: true,
-		bin
-	});
-});
-
-// Add to request bin
-router.all("/-/:id", async (request: Request & IttyRequest) => {
+router.all("/-/:id/*", async (request, env: Env) => {
 	const { params, method, headers, url } = request;
 	const { id } = params;
-	const bin = await BINS.get<RequestBin>(id, { type: "json" });
 
-	if (!bin) {
+	const result = await env.DB.prepare("SELECT * FROM bins WHERE id = ?").bind(id).first<string>("id");
+
+	if (!result) {
 		return json({
 			success: false,
 			message: "A request bin could not be found with the ID provided"
 		}, { status: 404 });
 	}
 
-	const headersObject = {};
+	const headersObject: {[k: string]: string} = {};
 	let ip = "";
 
 	for (const [key, value] of headers) {
@@ -67,40 +51,138 @@ router.all("/-/:id", async (request: Request & IttyRequest) => {
 	}
 
 	const requestId = randomString(10);
-	const r: StoredRequest = {
-		id: requestId,
-		ip,
-		method,
-		url,
-		timestamp: Date.now(),
-		headers: headersObject
-	};
-
 	const body = await request.arrayBuffer();
 
-	if (body)
-		r.body = Array.from(new Uint8Array(body));
+	const insertResult = await env.DB
+		.prepare("INSERT INTO requests (id, ip, method, url, timestamp, headers, body, bin_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)")
+		.bind(requestId, ip, method, url, Date.now(), JSON.stringify(headersObject), body, id)
+		.run();
 
-	bin.requests[requestId] = r;
-
-	await BINS.put(id, JSON.stringify(bin));
+	if (!insertResult.success) {
+		return json({
+			success: false,
+			message: "An unknown error occurred"
+		}, { status: 500 });
+	}
 
 	return json({ success: true });
 });
+router.delete("/:id", async ({ params }, env: Env) => {
+	const { id } = params;
 
-// Get single request from bin
-router.get("/:id/:requestId", async ({ params }) => {
-	const { id, requestId } = params;
-	const bin = await BINS.get<RequestBin>(id, { type: "json" });
+	let result = await env.DB.prepare("DELETE FROM requests WHERE bin_id = ?").bind(id).run();
 
-	if (!bin) {
+	if (!result.success) {
+		return json({
+			success: false,
+			message: "An unknown error occurred"
+		}, { status: 500 });
+	}
+
+	result = await env.DB.prepare("DELETE FROM bins WHERE id = ?").bind(id).run();
+
+	if (!result.success) {
+		return json({
+			success: false,
+			message: "An unknown error occurred"
+		}, { status: 500 });
+	}
+
+	return json({ success: true });
+});
+router.delete("/:id/all", async ({ params }, env: Env) => {
+	const { id } = params;
+
+	const binResult = await env.DB.prepare("SELECT * FROM bins WHERE id = ?").bind(id).first<string>("id");
+
+	if (!binResult) {
 		return json({
 			success: false,
 			message: "A request bin could not be found with the ID provided"
 		}, { status: 404 });
 	}
 
-	const request = bin.requests[requestId];
+	const result = await env.DB.prepare("DELETE FROM requests WHERE bin_id = ?").bind(id).run();
+
+	if (!result.success) {
+		return json({
+			success: false,
+			message: "An unknown error occurred"
+		}, { status: 500 });
+	}
+
+	return json({ success: true });
+});
+router.delete("/:id/:requestId", async ({ params }, env: Env) => {
+	const { id, requestId } = params;
+
+	const binResult = await env.DB.prepare("SELECT * FROM bins WHERE id = ?").bind(id).first<string>("id");
+
+	if (!binResult) {
+		return json({
+			success: false,
+			message: "A request bin could not be found with the ID provided"
+		}, { status: 404 });
+	}
+
+	const result = await env.DB.prepare("DELETE FROM requests WHERE bin_id = ? AND id = ?").bind(id, requestId).run();
+
+	if (!result.success) {
+		return json({
+			success: false,
+			message: "An unknown error occurred"
+		}, { status: 500 });
+	}
+
+	return json({ success: true });
+});
+router.get("/:id", async ({ params }, env: Env) => {
+	const { id } = params;
+
+	const result = await env.DB.prepare("SELECT * FROM bins WHERE id = ?").bind(id).first<string>("id");
+
+	if (!result) {
+		return json({
+			success: false,
+			message: "A request bin could not be found with the ID provided"
+		}, { status: 404 });
+	}
+
+	const requestsResult = await env.DB.prepare("SELECT * FROM requests WHERE bin_id = ?").bind(id).all<StoredRequest>();
+
+	if (!requestsResult.success) {
+		return json({
+			success: false,
+			message: "An unknown error occurred"
+		}, { status: 500 });
+	}
+
+	const requestMap: {[key: string]: ReturnedRequest} = {};
+
+	for (const r of requestsResult.results)
+		requestMap[r.id] = mapRequest(r);
+
+	return json({
+		success: true,
+		bin: <RequestBin>{
+			id,
+			requests: requestMap
+		}
+	});
+});
+router.get("/:id/:requestId", async ({ params }, env: Env) => {
+	const { id, requestId } = params;
+
+	const result = await env.DB.prepare("SELECT * FROM bins WHERE id = ?").bind(id).first<string>("id");
+
+	if (!result) {
+		return json({
+			success: false,
+			message: "A request bin could not be found with the ID provided"
+		}, { status: 404 });
+	}
+
+	const request = await env.DB.prepare("SELECT * FROM requests WHERE bin_id = ? AND id = ?").bind(id, requestId).first<StoredRequest>();
 
 	if (!request) {
 		return json({
@@ -109,57 +191,21 @@ router.get("/:id/:requestId", async ({ params }) => {
 		}, { status: 404 });
 	}
 
-	return json({ success: true, request });
+	return json({ success: true, request: mapRequest(request) });
+});
+router.all("*", () => {
+	return json({ success: false, message: "Endpoint not found" }, { status: 404 });
 });
 
-// Delete all requests from a bin
-router.delete("/:id/all", async ({ params }) => {
-	const { id } = params;
-	const bin = await BINS.get<RequestBin>(id, { type: "json" });
+export default {
+	fetch(req: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
+		return router.handle(req, env, ctx).then(json).catch(e => {
+			console.error(e);
 
-	if (!bin) {
-		return json({
-			success: false,
-			message: "A request bin could not be found with the ID provided"
-		}, { status: 404 });
+			return json({
+				success: false,
+				message: "An unknown error occurred"
+			}, { status: 500 });
+		});
 	}
-
-	bin.requests = {};
-
-	await BINS.put(id, JSON.stringify(bin));
-
-	return json({ success: true });
-});
-
-// Delete a single request from a bin
-router.delete("/:id/:requestId", async ({ params }) => {
-	const { id, requestId } = params;
-	const bin = await BINS.get<RequestBin>(id, { type: "json" });
-
-	if (!bin) {
-		return json({
-			success: false,
-			message: "A request bin could not be found with the ID provided"
-		}, { status: 404 });
-	}
-
-	delete bin.requests[requestId];
-
-	await BINS.put(id, JSON.stringify(bin));
-
-	return json({ success: true });
-});
-
-// Fallback 404 handler
-router.all("*", () => json({ success: false, message: "Endpoint not found" }, { status: 404 }));
-
-addEventListener("fetch", event =>
-	event.respondWith(router
-		.handle(event.request)
-		.catch(error => {
-			console.error(error);
-
-			return json({ success: false, message: "An unknown error occurred" }, { status: 500 });
-		})
-	)
-);
+};
