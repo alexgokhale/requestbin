@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "deploy": "api/node_modules/.bin/wrangler deploy",
-    "dev": "api/node_modules/.bin/wrangler dev",
-    "start": "api/node_modules/.bin/wrangler dev"
+    "deploy": "wrangler deploy",
+    "dev": "wrangler dev",
+    "start": "wrangler dev"
   },
   "dependencies": {
     "itty-router": "^4.0.23"
