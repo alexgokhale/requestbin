@@ -198,8 +198,8 @@ router.all("*", () => {
 });
 
 export default {
-	fetch(req: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
-		return router.handle(req, env, ctx).then(json).catch(e => {
+	fetch(req: Request, env: Env, ctx: ExecutionContext) {
+		return router.handle(req, env, ctx).catch(e => {
 			console.error(e);
 
 			return json({
