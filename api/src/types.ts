@@ -3,20 +3,31 @@ export interface Headers {
 }
 
 export interface StoredRequest {
-	id: string,
+	id: string;
+	bin_id: string
 	ip: string
-	method: string,
-	url: string,
-	timestamp: number,
-	headers: Headers,
-	body?: number[]
+	method: string
+	url: string
+	timestamp: number
+	headers: string
+	body?: ArrayBuffer
+}
+
+export interface ReturnedRequest {
+	id: string
+	ip: string
+	method: string
+	url: string
+	timestamp: number
+	headers: Headers
+	body?: ArrayBuffer
 }
 
 export interface Requests {
-	[key: string]: StoredRequest
+	[key: string]: ReturnedRequest
 }
 
 export interface RequestBin {
-	id: string,
+	id: string
 	requests: Requests
 }

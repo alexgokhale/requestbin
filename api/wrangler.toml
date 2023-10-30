@@ -1,24 +1,11 @@
 name = "requestbin"
-type = "webpack"
-webpack_config = "webpack.config.js"
+main = "src/index.ts"
 account_id = "4327cb5c94e7ca3e5c5e1b3227722738"
-compatibility_date = "2022-07-23"
-
-[build]
-command = "npm install && npm run build"
-[build.upload]
-format = "service-worker"
-
-[env.dev]
-name = "requestbin-dev"
-workers_dev = true
-kv_namespaces = [
-    { binding = "BINS", id = "a7ef2bc7397244d094f68c58aed88aeb", preview_id = "a7ef2bc7397244d094f68c58aed88aeb" }
-]
-
-[env.prod]
-zone_id = "f8ff397426356e328b48ef70b19732f4"
+compatibility_date = "2023-10-25"
 route = "requestbin.xela.tech/*"
-kv_namespaces = [
-    { binding = "BINS", id = "ac7af24308fe4ba39dda19739c389c24" }
-]
+
+[[d1_databases]]
+binding = "DB"
+database_name = "requestbin-db"
+database_id = "9cfafee9-d5ca-4cfb-b2d4-e71fc82e9ed1"
+preview_database_id = "ec172618-ea70-417f-b5ba-57530ddacc5c"
