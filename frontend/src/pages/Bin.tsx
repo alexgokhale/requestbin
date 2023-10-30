@@ -13,9 +13,13 @@ const Bin = () => {
 	const [error, setError] = useState<number | null>(null);
 	const [bin, setBin] = useState<RequestBin | null>(null);
 
-	setInterval(() => {
-		setRefresh(Math.random());
-	}, 1500);
+	useEffect(() => {
+		const interval = setInterval(() => {
+			setRefresh(Math.random());
+		}, 1500);
+
+		return () => clearInterval(interval);
+	}, []);
 
 	useEffect(() => {
 		(async () => {
