@@ -42,7 +42,7 @@ const Request = ({ request }: RequestProps) => {
 				<p className="text-white text-sm font-bold">Host: <span className="text-pink-500 font-mono">{url.host}</span></p>
 				<p className="text-white text-sm font-bold">Path: <span className="text-pink-500 font-mono">{url.pathname}</span></p>
 				{url.search && <p className="text-white text-sm font-bold">Query String: <span className="text-pink-500 font-mono">{url.search}</span></p>}
-			</div>s
+			</div>
 			<div>
 				<h4 className="text-white text-xl font-bold">Headers</h4>
 				<table className="w-full">
