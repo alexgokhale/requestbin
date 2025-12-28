@@ -80,23 +80,7 @@ const Landing = () => {
 						target="_blank" rel="noreferrer noopener"
 						href="https://gitlab.com/honour/requestbin"
 					>
-						https://gitlab.com/honour/requestbin
-					</a>
-				</p>
-			</div>
-
-			<div className="mt-8">
-				<h5 className="font-mono font-bold text-pink-600 mb-1">
-					# Who made this <span className="font-mono font-extrabold">*amazing*</span> tool?
-				</h5>
-				<p className="ml-2 font-mono text-neutral-400 font-bold text-sm">
-					Me.{" "}
-					<a
-						className="font-mono text-cyan-600 underline cursor-pointer"
-						target="_blank" rel="noreferrer noopener"
-						href="https://alexgokhale.com"
-					>
-						https://alexgokhale.com
+						https://github.com/alexgokhale/requestbin
 					</a>
 				</p>
 			</div>

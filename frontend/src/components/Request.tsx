@@ -41,21 +41,8 @@ const Request = ({ request }: RequestProps) => {
 				<h4 className="text-white text-xl font-bold">URL</h4>
 				<p className="text-white text-sm font-bold">Host: <span className="text-pink-500 font-mono">{url.host}</span></p>
 				<p className="text-white text-sm font-bold">Path: <span className="text-pink-500 font-mono">{url.pathname}</span></p>
-				{url.search && (
-					<div className="ml-2">
-						<>
-							<h5 className="text-white text-lg font-bold">Query String</h5>
-							{Object.keys(Object.fromEntries(url.searchParams)).map(key => <>
-								<p className="text-white text-sm font-bold">{key}:{" "}
-									<span className="text-pink-500 font-mono">
-										{url.searchParams.get(key)}
-									</span>
-								</p>
-							</>)}
-						</>
-					</div>
-				)}
-			</div>
+				{url.search && <p className="text-white text-sm font-bold">Query String: <span className="text-pink-500 font-mono">{url.search}</span></p>}
+			</div>s
 			<div>
 				<h4 className="text-white text-xl font-bold">Headers</h4>
 				<table className="w-full">
